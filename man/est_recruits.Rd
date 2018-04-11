@@ -4,22 +4,20 @@
 \alias{est_recruits}
 \title{Calculate recrutiment from previous years population}
 \usage{
-est_recruits(type, N_area, rec_pars)
+est_recruits(type, rec_pars, var)
 }
 \arguments{
-\item{type}{recruitment function either "constant", "logistic", "bevholt"
-(Beverton Holt) or "ricker". The "lognorm" method is independent of
-population size}
+\item{type}{recruitment function either "constant", "logistic", "bevholt" (Beverton Holt)
+or "ricker". The "lognorm" method is independent of population size}
 
-\item{N_area}{population size by region}
+\item{rec_pars}{list of recruitment parameters}
 
-\item{rec_pars}{list of recruitment parameters (note: extend this help)}
+\item{var}{is recruitment stochastic (default=FALSE)}
 }
 \description{
-Function returns number of recruits given last year's population size N,
-carrying capacity k and resilience r. rk is the number of recruits per unit
-spawner when B = k.
-}
-\details{
-Modification of function written by Bill de la Mare
+Function returns number of recruits given last year's population size
+carrying capacity K, natural survivorship S and resilience r.
+rk is the number of recruits per unit spawner when B = K.
+var controls whether the recruitment is stochastic
+(var = F is used when calculating recruitment parameters)
 }

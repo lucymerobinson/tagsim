@@ -53,7 +53,5 @@
 #'
 #' @docType package
 #' @name tagsim
-#' @importFrom stats quantile rbinom rlnorm rnorm sd
-#' @importFrom utils read.table write.table
 NULL
 #> NULL

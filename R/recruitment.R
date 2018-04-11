@@ -1,47 +1,41 @@
 #' Calculate recrutiment from previous years population
 #'
-#' Function returns number of recruits given last year's population size N,
-#' carrying capacity k and resilience r. rk is the number of recruits per unit
-#' spawner when B = k.
-#'
-#' Modification of function written by Bill de la Mare
-#' @param type recruitment function either "constant", "logistic", "bevholt"
-#' (Beverton Holt) or "ricker". The "lognorm" method is independent of
-#' population size
-#' @param N_area population size by region
-#' @param rec_pars list of recruitment parameters (note: extend this help)
+#' Function returns number of recruits given last year's population size
+#' carrying capacity K, natural survivorship S and resilience r.
+#' rk is the number of recruits per unit spawner when B = K.
+#' var controls whether the recruitment is stochastic
+#' (var = F is used when calculating recruitment parameters)
+#' @param type recruitment function either "constant", "logistic", "bevholt" (Beverton Holt)
+#' or "ricker". The "lognorm" method is independent of population size
+#' @param rec_pars list of recruitment parameters
+#' @param var is recruitment stochastic (default=FALSE)
+#' @importFrom stats rlnorm
 #' @export
-est_recruits <- function(type, N_area, rec_pars){
+est_recruits <- function(type, rec_pars, var){
   ## add some checks
-  N <- sum(N_area)
+  N <- rec_pars[["initial"]]
   ## calculate recruitment based on type
   switch(type,
          constant = recruits <- rec_pars[["initial"]],
          logistic = {
-           recruits <- N*rec_pars[["rk"]]*(1 + rec_pars[["r"]]*(1 - N/rec_pars[["k"]]))
+           recruits <- N*rec_pars[["rk"]]*(1 + rec_pars[["resilience"]]*(1 - N/rec_pars[["K"]]))
          },
          bevholt = {
-           ## If r, k and rk are supplied we use them to calculate a and b
-           if(all(c("r", "k", "rk") %in% names(rec_pars))){
-           bta <- rec_pars[["r"]]*rec_pars[["rk"]]
-           b <- 1./(bta/(rec_pars[["rk"]]*rec_pars[["k"]]) - 1./rec_pars[["k"]])
+           bta <- rec_pars[["resilience"]]*rec_pars[["rk"]]
+           b <- 1./(bta/(rec_pars[["rk"]]*rec_pars[["K"]]) - 1./rec_pars[["K"]])
            a <- b*bta
-           }
-           recruits<-(rec_pars[["a"]]*N)/(rec_pars[["b"]] + N)
+           recruits<-a*N/(b + N)
          },
          ricker = {
-           ## If r, k and rk are supplied we use them to calculate a and b
-           if(all(c("r", "k", "rk") %in% names(rec_pars))){
-           a <- rec_pars[["r"]]*rec_pars[["rk"]]
-           b <- log(a*rec_pars[["k"]]/(rec_pars[["rk"]]*rec_pars[["k"]]))/rec_pars[["k"]]
-           }
-           recruits<-rec_pars[["a"]]*N*exp(-rec_pars[["b"]]*N)
+           a <- rec_pars[["resilience"]]*rec_pars[["rk"]]
+           b <- log(a*rec_pars[["K"]]/(rec_pars[["rk"]]*rec_pars[["K"]]))/rec_pars[["K"]]
+           recruits<-a*N*exp(-b*N)
          }
   )
   ## prevent negative recruitment
   recruits <- ifelse(recruits>0, recruits, 0)
   ## Include variability when required
-  if(rec_pars[["stochastic_rec"]]) {
+  if(var=="stochastic") {
     recruits <- recruits * rlnorm(1,rec_pars[["mu"]],rec_pars[["s"]])
   }
   ## return the recruits

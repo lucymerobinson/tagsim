@@ -9,7 +9,7 @@ create_storage(control, n_reps)
 \arguments{
 \item{control}{a control file}
 
-\item{n_reps}{number of replicate simulations}
+\item{n_reps}{number of MCMC replicates}
 }
 \description{
 Create an object to store simulation results
